@@ -1,0 +1,5 @@
+input size		10		 20	    	50		 100		1000		5000		10000
+
+insertion		2 ms		4 ms		20 ms		 80 ms		8200 ms		172000 ms	632000 ms
+
+merge			3.33 ms 	13.33 ms	33.33 ms 	66.667 ms	666.67 ms	6666.67 ms	16666.7 ms

@@ -1,0 +1,17 @@
+include/linux/sched.h => 1610 => "int hidden;" eklendi.
+
+include/linux/init_task.h => 205 => ".hidden = 0,    \" eklendi.
+
+kernel/set_hidden.c eklendi.
+
+include/syscall.g => 881 => "asmlinkage long sys_set_hidden(pid_t pid, int flag);" eklendi.
+
+kernel/fork.c => 1562, 1563 => "if (current->hidden == 1)
+return -EPERM;" eklendi.
+
+fs/proc/base.c => 2828 => conditionun içine "&& iter.task-> hidden" == 0 eklendi.
+
+kernel/Makefile => 5 => set_hidden.o eklendi.
+
+arch/x86/syscall/syscall_32.tbl => 360 => "351 i386 set_hidden sys_set_hidden" eklendi.
+

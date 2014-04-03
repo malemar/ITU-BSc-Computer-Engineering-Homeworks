@@ -1,0 +1,53 @@
+diff -r -N linux-source-3.8.0/arch/x86/syscalls/syscall_32.tbl linux-source-3.8.0-new/arch/x86/syscalls/syscall_32.tbl
+359a360
+> 351 i386	set_hidden			sys_set_hidden
+diff -r -N linux-source-3.8.0/fs/proc/base.c linux-source-3.8.0-new/fs/proc/base.c
+2828c2828
+< 		if (has_pid_permissions(ns, iter.task, 2))
+---
+> 		if (has_pid_permissions(ns, iter.task, 2) && iter.task->hidden == 0)
+diff -r -N linux-source-3.8.0/include/linux/init_task.h linux-source-3.8.0-new/include/linux/init_task.h
+204a205
+> 	.hidden = 0,						\
+diff -r -N linux-source-3.8.0/include/linux/sched.h linux-source-3.8.0-new/include/linux/sched.h
+1609a1610
+> 	int hidden;
+diff -r -N linux-source-3.8.0/include/linux/syscalls.h linux-source-3.8.0-new/include/linux/syscalls.h
+880a881
+> asmlinkage long sys_set_hiden(pid_t pid, int flag);
+diff -r -N linux-source-3.8.0/kernel/fork.c linux-source-3.8.0-new/kernel/fork.c
+1590a1591,1594
+> 			 
+> 	if (p->hidden == 1)
+> 	return -EPERM;
+> 	
+diff -r -N linux-source-3.8.0/kernel/Makefile linux-source-3.8.0-new/kernel/Makefile
+5c5
+< obj-y     = fork.o exec_domain.o panic.o printk.o \
+---
+> obj-y     = set_hidden.o fork.o exec_domain.o panic.o printk.o \
+diff -r -N linux-source-3.8.0/kernel/set_hidden.c linux-source-3.8.0-new/kernel/set_hidden.c
+0a1,23
+> #include <linux/kernel.h>
+> #include <linux/linkage.h>
+> #include <linux/sched.h>
+> #include <asm/current.h>
+> #include <asm/errno.h>
+> 
+> asmlinkage long sys_set_hidden(pid_t pid, int flag)
+> {
+> 	struct task_struct *process;
+> 	
+> 	if (!capable(CAP_SYS_ADMIN))
+> 		return -EPERM;
+> 	
+> 	if (flag != 0 && flag != 1)
+> 		return -EINVAL;
+> 	
+> 	process = find_task_by_vpid(pid);
+> 	if (process == NULL)
+> 		return -ESRCH;
+> 		
+> 	process->hidden = flag;
+> 	return 0;	
+> }

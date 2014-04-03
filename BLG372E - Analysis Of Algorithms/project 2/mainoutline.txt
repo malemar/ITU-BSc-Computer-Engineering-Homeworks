@@ -1,0 +1,27 @@
+main(){
+	program parameter error check;
+	read the files and initialize containers with data;
+	print initial data (all edges and city map);
+	scan input value for K;
+	
+	// TEST 1
+	ask user if she wants to see the steps of the algorithm;
+	do{
+		randomly pick K edges;
+		handle random pick errors;
+		print kruskal parameters info;
+		invoke kruskal();
+	}while(kruskal returns a connected graph(tree))
+	print the minimum spanning tree;
+	calculate the running time of the algorihtm;
+	output test 1 data to file;
+	print test 1 data to screen;
+	
+	// TEST 2
+	do the same procedure with K = K*2;
+	
+	// TEST 3
+	do the same procedure with K = K*3;
+	
+	return;
+}
