@@ -1,0 +1,153 @@
+\documentclass{article}
+
+\usepackage{listings}
+
+\begin{document}
+
+\title{BLG312E - Computer Operating Systems Homework 1}
+\author{Volkan Ilbeyli}
+\date{March 9, 2013}
+\maketitle
+
+\section{Answer to Question 1}
+The output is:
+
+\begin{lstlisting}
+Parent: My process ID: 4283 
+Parent: My child's process ID: 4284 
+   Child: My process ID: 4284 
+   Child: My parent's process ID: 4283 
+Parent: Terminating...
+\end{lstlisting}
+
+First, the parent process starts to execute. It prints its own PID using \texttt{getpid()} function. As two identical
+processes start after the \texttt{f=fork()} function (except for their PIDs), the parent process gets its child's PID
+using the \texttt{f} variable. The \texttt{wait(NULL)} line helps the child process to terminate before its parent terminates.
+If the parent did not \texttt{wait(NULL)}, the child process might have printed its parent's PID as \texttt{0} since the parent
+process might have terminated before the child process prints its parent's PID. The child 
+process starts running after the \texttt{wait(NULL)} line is reached and prints its parent's PID using \texttt{getppid()}
+function and its own PID using \texttt{getpid()} function. At this process, the value of \texttt{f} is 0 since the child process
+doesnt have a child process. The \texttt{sleep(1)} line is not as crucial as the \texttt{wait(NULL)} line as it just postpones the output only
+1 millisecond. When the child process \texttt{exit(0)}s the parent process continues to execute where it was left, at the 
+\texttt{wait(NULL)} line. The last line simply states that the parent is terminating.
+
+The difference between the child PID and the parent PID is one, simply stating that a \emph{child} process is created \emph{after} 
+the parent, thus having a PID greater than its parents only by 1.
+
+\newpage
+\section{Answer to Question 2}
+
+The output is:
+
+\begin{lstlisting}
+Parent: My parent's process ID: 3021 
+Parent: My process ID: 5450 
+Parent: My child's process ID: 5451 
+   Child: My process ID: 5451 
+   Child: My parent's process ID: 5450 
+Parent: Terminating...
+
+\end{lstlisting}
+
+The difference between the PIDs of parent(5450) process and the parent of parent(3021) process is larger compared to a simple, 1 child 
+forking situation. Judging the large difference and the parent of parent process' PID always being 3021, I can conclude that the PID with
+3021 is the process which is started with the operating system and is responsible for executing my \texttt{main()} function.
+
+\section{Answer to Question 3}
+Below are 2 different outputs when the \texttt{wait(NULL)} line is omitted:
+
+\begin{lstlisting}
+Parent: My parent's process ID: 3021 
+Parent: My process ID: 5840 
+Parent: My child's process ID: 5841 
+   Child: My process ID: 5841 
+Parent: Terminating...
+   Child: My parent's process ID: 5840
+\end{lstlisting}
+
+\begin{lstlisting}
+Parent: My parent's process ID: 3021 
+Parent: My process ID: 5838 
+Parent: My child's process ID: 5839 
+Parent: Terminating...
+   Child: My process ID: 5839 
+   Child: My parent's process ID: 1 
+
+\end{lstlisting}
+
+The first run seems like a regular run, alike with the ones which have \texttt{wait(NULL)} line. But the second run shows that the parent process
+did not wait for its child to \texttt{exit(0)} and terminated before its child terminated. Therefore when child process tried to print its
+parent's PID, it printed 1 instead of its parents PID, 5838. A PID value of 1 indicates that there is no parent process associated with that 
+process and it is the value of the \texttt{init} process, which is the first process started during the boot.
+
+\newpage
+\section{Answer to Question 4}
+
+Output:
+
+\begin{lstlisting}
+Parent: global before assignment = 5
+Parent: global = 0
+   Child: global before assignment = 5
+   Child: global = 10
+   Child: Terminating...
+Parent: global after child is terminated = 0
+Parent: Terminating...
+\end{lstlisting}
+
+The global variable value was \texttt{5} before the \texttt{fork()} was called. Since the fork \emph{clones} the process, global variable was
+cloned to the child process with the same value. The distinction here is the newly cloned variable became the \emph{child's global variable} while the 
+parent process maintained \emph{its own global variable}. Thus, assigning different values to the variable did not affect the each other process' 
+global variable.
+
+\section{Answer to Question 5}
+
+Output:
+
+\begin{lstlisting}
+Parent: global address: 25804816
+Parent: global before assignment = 5
+Parent: global = 0
+   Child: global address: 25804816
+   Child: global before assignment = 5
+   Child: global = 10
+   Child: Terminating...
+Parent: global after child is terminated = 0
+Parent: Terminating...
+\end{lstlisting}
+
+When a process is forked, a location from the main memory is allocated to the child process, \textbf{however,} due to virtualization, they look like
+they are using exactly the same memory address while in fact they don't. The above situation illustrates this phenomena. Even though a global variable is
+declared, when forked, the child process will have the cloned variables and the pointers will seem to have the same address location due to
+virtualization. In this situation, changes made to the location pointed by the global pointer in the child process will not affect the memory location 
+allocated by the global pointer in the parent process. In other words, the child and the parent process have their \emph{own} global pointers which seem
+to have the same address. In physical layer, they don't. That is due to cloning everything to the child when \texttt{fork()} is invoked.  
+
+\newpage
+\section{Answer to Question 6}
+
+This question basically compares the threads against processes. Below is the output:
+
+Processes:
+\begin{lstlisting}
+0: Value= 1
+1: Value= 1
+Main: Created 3 procs.
+2: Value= 1
+\end{lstlisting}
+
+Threads:
+\begin{lstlisting}
+0: Value= 1
+1: Value= 2
+main(): Created 3 threads.
+2: Value= 3
+\end{lstlisting}
+
+The most important difference between a process and a thread is: A process group get to have the same resources as the parent process, i.e., the variables,
+memory amount, etc, everything is cloned to the child processes. However for threads: they use the same resources, i.e. they \emph{share} the resources. A change
+in one variable affects all the threads using that variable. 
+Concluding from the output: All the three processes had their cloned variable incremented by one, meaning that 
+a change in one variable did \emph{not} affect the other while in the threads, a change in on variable affected the others as the variable was incremented
+three times, all by each thread, which shows us that the resources are \emph{shared} among threads while they are \emph{not shared} among processes.
+\end{document}
